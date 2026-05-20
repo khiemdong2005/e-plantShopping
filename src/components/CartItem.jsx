@@ -3,15 +3,21 @@ import {
   useDispatch,
 } from "react-redux";
 
-import { removeFromCart } from "../redux/CartSlice";
+import {
+  removeItem,
+  updateQuantity,
+} from "../redux/CartSlice";
 
 function CartItem() {
-  const cartItems = useSelector((state) => state.cart.items);
+  const cartItems = useSelector(
+    (state) => state.cart.items
+  );
 
   const dispatch = useDispatch();
 
-  const totalPrice = cartItems.reduce(
-    (total, item) => total + item.price,
+  const totalAmount = cartItems.reduce(
+    (total, item) =>
+      total + item.price * item.quantity,
     0
   );
 
@@ -19,12 +25,10 @@ function CartItem() {
     <div>
       <h1>Shopping Cart</h1>
 
-      <h2>Total Items: {cartItems.length}</h2>
+      <h2>Total Cart Amount: ${totalAmount}</h2>
 
-      <h2>Total Price: ${totalPrice}</h2>
-
-      {cartItems.map((item, index) => (
-        <div key={index}>
+      {cartItems.map((item) => (
+        <div key={item.id}>
           <img
             src={item.image}
             alt={item.name}
@@ -33,22 +37,64 @@ function CartItem() {
 
           <h3>{item.name}</h3>
 
-          <p>${item.price}</p>
+          <p>Unit Price: ${item.price}</p>
+
+          <p>Quantity: {item.quantity}</p>
+
+          <p>
+            Total: $
+            {item.price * item.quantity}
+          </p>
 
           <button
             onClick={() =>
-              dispatch(removeFromCart(index))
+              dispatch(
+                updateQuantity({
+                  id: item.id,
+                  quantity: item.quantity + 1,
+                })
+              )
             }
           >
-            Remove
+            +
+          </button>
+
+          <button
+            onClick={() =>
+              dispatch(
+                updateQuantity({
+                  id: item.id,
+                  quantity:
+                    item.quantity > 1
+                      ? item.quantity - 1
+                      : 1,
+                })
+              )
+            }
+          >
+            -
+          </button>
+
+          <button
+            onClick={() =>
+              dispatch(removeItem(item.id))
+            }
+          >
+            Delete
           </button>
         </div>
       ))}
 
       <button
-        onClick={() => alert("Coming Soon")}
+        onClick={() =>
+          alert("Coming Soon")
+        }
       >
         Checkout
+      </button>
+
+      <button>
+        Continue Shopping
       </button>
     </div>
   );
